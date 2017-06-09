@@ -21,6 +21,7 @@ var settings = map[string]string{
 	"root":              ".",
 	"tmp_path":          "./tmp",
 	"build_name":        "runner-build",
+	"args":              "",
 	"build_log":         "runner-build-errors.log",
 	"valid_ext":         ".go, .tpl, .tmpl, .html",
 	"build_delay":       "600",
@@ -120,6 +121,11 @@ func tmpPath() string {
 func buildName() string {
 	return settings["build_name"]
 }
+
+func args() []string {
+	return strings.Fields(settings["args"])
+}
+
 func buildPath() string {
 	return filepath.Join(tmpPath(), buildName())
 }

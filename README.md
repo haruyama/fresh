@@ -33,6 +33,7 @@ Here is a sample config file with the default settings:
     root:              .
     tmp_path:          ./tmp
     build_name:        runner-build
+    args:              -bind=:8080
     build_log:         runner-build-errors.log
     valid_ext:         .go, .tpl, .tmpl, .html
     build_delay:       600
