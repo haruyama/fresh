@@ -1,21 +1,68 @@
 package runner
 
 import (
-	assert "github.com/pilu/miniassert"
 	"testing"
 )
 
 func TestIsWatchedFile(t *testing.T) {
-	// valid extensions
-	assert.True(t, isWatchedFile("test.go"))
-	assert.True(t, isWatchedFile("test.tpl"))
-	assert.True(t, isWatchedFile("test.tmpl"))
-	assert.True(t, isWatchedFile("test.html"))
+	tests := []struct {
+		file     string
+		expected bool
+	}{
+		{"test.go", true},
+		{"test.tpl", true},
+		{"test.tmpl", true},
+		{"test.html", true},
+		{"test.css", false},
+		{"test-executable", false},
+		{"./tmp/test.go", false},
+	}
 
-	/* // invalid extensions */
-	assert.False(t, isWatchedFile("test.css"))
-	assert.False(t, isWatchedFile("test-executable"))
+	for _, test := range tests {
+		actual := isWatchedFile(test.file)
 
-	// files in tmp
-	assert.False(t, isWatchedFile("./tmp/test.go"))
+		if actual != test.expected {
+			t.Errorf("Expected %v, got %v", test.expected, actual)
+		}
+	}
+}
+
+func TestShouldRebuild(t *testing.T) {
+	tests := []struct {
+		eventName string
+		expected  bool
+	}{
+		{`"test.go": MODIFIED`, true},
+		{`"test.tpl": MODIFIED`, false},
+		{`"test.tmpl": DELETED`, false},
+		{`"unknown.extension": DELETED`, true},
+		{`"no_extension": ADDED`, true},
+		{`"./a/path/test.go": MODIFIED`, true},
+	}
+
+	for _, test := range tests {
+		actual := shouldRebuild(test.eventName)
+
+		if actual != test.expected {
+			t.Errorf("Expected %v, got %v (event was '%s')", test.expected, actual, test.eventName)
+		}
+	}
+}
+
+func TestIsIgnoredFolder(t *testing.T) {
+	tests := []struct {
+		dir      string
+		expected bool
+	}{
+		{"assets/node_modules", true},
+		{"tmp/pid", true},
+		{"app/controllers", false},
+	}
+
+	for _, test := range tests {
+		actual := isIgnoredFolder(test.dir)
+		if actual != test.expected {
+			t.Errorf("Expected %v, got %v", test.expected, actual)
+		}
+	}
 }

@@ -1,4 +1,6 @@
-# Fresh
+# Fresh
+[![Join the chat at https://gitter.im/pilu/fresh](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pilu/fresh?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/pilu/fresh.svg?branch=master)](https://travis-ci.org/pilu/fresh)
 
 Fresh is a command line tool that builds and (re)starts your web application everytime you save a Go or template file.
 
@@ -18,15 +20,15 @@ Start fresh:
 
     fresh
 
-Fresh will watch for file events, and every time you create/modifiy/delete a file it will build and restart the application.
+Fresh will watch for file events, and every time you create/modify/delete a file it will build and restart the application.
 If `go build` returns an error, it will log it in the tmp folder.
 
 [Traffic](https://github.com/pilu/traffic) already has a middleware that shows the content of that file if it is present. This middleware is automatically added if you run a Traffic web app in dev mode with Fresh.
 Check the `_examples` folder if you want to use it with Martini or Gocraft Web.
 
-You can use the `-c` options if you want to specify a config file:
+`fresh` uses `./runner.conf` for configuration by default, but you may specify an alternative config filepath using `-c`:
 
-    fresh -c runner.conf
+    fresh -c other_runner.conf
 
 Here is a sample config file with the default settings:
 
@@ -36,6 +38,8 @@ Here is a sample config file with the default settings:
     args:              -bind=:8080
     build_log:         runner-build-errors.log
     valid_ext:         .go, .tpl, .tmpl, .html
+    no_rebuild_ext:    .tpl, .tmpl, .html
+    ignored:           assets, tmp
     build_delay:       600
     colors:            1
     log_color_main:    cyan
@@ -43,6 +47,7 @@ Here is a sample config file with the default settings:
     log_color_runner:  green
     log_color_watcher: magenta
     log_color_app:
+
 
 ## Author
 

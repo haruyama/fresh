@@ -23,6 +23,20 @@ func isTmpDir(path string) bool {
 	return absolutePath == absoluteTmpPath
 }
 
+func isIgnoredFolder(path string) bool {
+	paths := strings.Split(path, "/")
+	if len(paths) <= 0 {
+		return false
+	}
+
+	for _, e := range strings.Split(settings["ignored"], ",") {
+		if strings.TrimSpace(e) == paths[0] {
+			return true
+		}
+	}
+	return false
+}
+
 func isWatchedFile(path string) bool {
 	absolutePath, _ := filepath.Abs(path)
 	absoluteTmpPath, _ := filepath.Abs(tmpPath())
@@ -40,6 +54,18 @@ func isWatchedFile(path string) bool {
 	}
 
 	return false
+}
+
+func shouldRebuild(eventName string) bool {
+	for _, e := range strings.Split(settings["no_rebuild_ext"], ",") {
+		e = strings.TrimSpace(e)
+		fileName := strings.Replace(strings.Split(eventName, ":")[0], `"`, "", -1)
+		if strings.HasSuffix(fileName, e) {
+			return false
+		}
+	}
+
+	return true
 }
 
 func createBuildErrorsLog(message string) bool {

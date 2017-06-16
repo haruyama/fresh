@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -24,6 +25,8 @@ var settings = map[string]string{
 	"args":              "",
 	"build_log":         "runner-build-errors.log",
 	"valid_ext":         ".go, .tpl, .tmpl, .html",
+	"no_rebuild_ext":    ".tpl, .tmpl, .html",
+	"ignored":           "assets, tmp",
 	"build_delay":       "600",
 	"colors":            "1",
 	"log_color_main":    "cyan",
@@ -127,7 +130,11 @@ func args() []string {
 }
 
 func buildPath() string {
-	return filepath.Join(tmpPath(), buildName())
+	p := filepath.Join(tmpPath(), buildName())
+	if runtime.GOOS == "windows" && filepath.Ext(p) != ".exe" {
+		p += ".exe"
+	}
+	return p
 }
 
 func buildErrorsFileName() string {
