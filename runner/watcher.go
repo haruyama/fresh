@@ -48,6 +48,11 @@ func watch() {
 				return filepath.SkipDir
 			}
 
+			if isIgnoredFolder(path) {
+				watcherLog("Ignoring %s", path)
+				return filepath.SkipDir
+			}
+
 			watchFolder(path)
 		}
 

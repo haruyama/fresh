@@ -5,7 +5,6 @@ import (
 	"os"
 	"runtime"
 	"strings"
-	"syscall"
 	"time"
 )
 
@@ -55,14 +54,20 @@ func start() {
 				mainLog(err.Error())
 			}
 
-			errorMessage, ok := build()
-			if !ok {
-				mainLog("Build Failed: \n %s", errorMessage)
-				if !started {
-					os.Exit(1)
+			buildFailed := false
+			if shouldRebuild(eventName) {
+				errorMessage, ok := build()
+				if !ok {
+					buildFailed = true
+					mainLog("Build Failed: \n %s", errorMessage)
+					if !started {
+						os.Exit(1)
+					}
+					createBuildErrorsLog(errorMessage)
 				}
-				createBuildErrorsLog(errorMessage)
-			} else {
+			}
+
+			if !buildFailed {
 				if started {
 					stopChannel <- true
 				}
@@ -86,16 +91,6 @@ func initLogFuncs() {
 	runnerLog = newLogFunc("runner")
 	buildLog = newLogFunc("build")
 	appLog = newLogFunc("app")
-}
-
-func initLimit() {
-	var rLimit syscall.Rlimit
-	rLimit.Max = 10000
-	rLimit.Cur = 10000
-	err := syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
-	if err != nil {
-		fmt.Println("Error Setting Rlimit ", err)
-	}
 }
 
 func setEnvVars() {
