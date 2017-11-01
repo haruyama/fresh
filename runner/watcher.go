@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/go-utils/uslice"
 	"github.com/howeyc/fsnotify"
 )
 
@@ -44,8 +43,11 @@ func watch() {
 			if len(path) > 1 && strings.HasPrefix(filepath.Base(path), ".") {
 				return filepath.SkipDir
 			}
-			if uslice.StrHas(skipFolders(), filepath.Base(path)) {
-				return filepath.SkipDir
+			base := filepath.Base(path)
+			for _, p := range skipFolders() {
+				if p == base {
+					return filepath.SkipDir
+				}
 			}
 
 			if isIgnoredFolder(path) {
